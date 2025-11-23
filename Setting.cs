@@ -1,6 +1,3 @@
-// Setting.cs
-// Options UI + Config.xml helpers for City Services Redux.
-
 namespace RealCity
 {
     using System;                         // Exception
@@ -29,8 +26,8 @@ namespace RealCity
     public class Setting : ModSetting
     {
         // Tabs (sections)
-        public const string kSection = "Actions";       // Shown as "Actions" via locale
-        public const string kDebugSection = "Debug"; // Shown as "Debug" via locale
+        public const string kSection = "Actions";     // Shown as "Actions" via locale
+        public const string kDebugSection = "Debug";  // Shown as "Debug" via locale
 
         // Groups
         public const string kToggleGroup = "Options";
@@ -137,10 +134,10 @@ namespace RealCity
 
                 try
                 {
-                    // Ensure the Config.xml exists (copy from shipped or create minimal shell)
+                    // Ensure the Config.xml exists (copy from shipped or create stub)
                     // and then open the containing folder.
-                    string configPath = ConfigToolXml.GetConfigFilePathForUI();
-                    string? modsDataDir = Path.GetDirectoryName(configPath);
+                    var configPath = ConfigToolXml.GetConfigFilePathForUI();
+                    var modsDataDir = Path.GetDirectoryName(configPath);
 
                     if (!string.IsNullOrEmpty(modsDataDir))
                     {
@@ -225,6 +222,31 @@ namespace RealCity
             get; set;
         }
 
+        // Debug tab: dump current prefab status vs Config.xml into RealCity.log
+        [SettingsUIButton]
+        [SettingsUISection(kDebugSection, kDebugGroup)]
+        public bool DumpPrefabStatus
+        {
+            set
+            {
+                if (!value)
+                {
+                    return;
+                }
+
+                try
+                {
+                    ConfigTool.DumpPrefabStatus();
+                }
+                catch (Exception ex)
+                {
+                    // Don't let debug helper bubble an exception to the UI.
+                    Mod.s_Log?.Warn(
+                        $"DumpPrefabStatus failed: {ex.GetType().Name}: {ex.Message}");
+                }
+            }
+        }
+
         // Duplicate reset button on Debug tab (always visible)
         [SettingsUIButton]
         [SettingsUISection(kDebugSection, kDebugGroup)]
@@ -261,7 +283,7 @@ namespace RealCity
         {
             try
             {
-                string assetPath = Mod.modAsset != null ? Mod.modAsset.path : string.Empty;
+                var assetPath = Mod.modAsset != null ? Mod.modAsset.path : string.Empty;
                 ConfigToolXml.RestoreDefaultConfigForUI(assetPath);
             }
             catch (Exception ex)
@@ -276,7 +298,7 @@ namespace RealCity
             try
             {
                 // Normalize to forward slashes for URI.
-                string normalized = path.Replace('\\', '/');
+                var normalized = path.Replace('\\', '/');
 
                 // Some platforms like a trailing slash for directories.
                 if (isDirectory && !normalized.EndsWith("/", StringComparison.Ordinal))
@@ -284,7 +306,7 @@ namespace RealCity
                     normalized += "/";
                 }
 
-                string uri = "file:///" + normalized;
+                var uri = "file:///" + normalized;
                 Application.OpenURL(uri);
             }
             catch

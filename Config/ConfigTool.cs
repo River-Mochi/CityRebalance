@@ -20,7 +20,7 @@ namespace RealCity
 
         public static void DumpFields(PrefabBase prefab, ComponentBase component)
         {
-            string className = component.GetType().Name;
+            var className = component.GetType().Name;
             Mod.Log($"{prefab.name}.{component.name}.CLASS: {className}");
 
             object obj = component;
@@ -323,7 +323,7 @@ namespace RealCity
                 return;
             }
 
-            string sourceDescription = useLocal
+            var sourceDescription = useLocal
                 ? "Apply LOCAL Config.xml (ModsData/RealCity)"
                 : "Apply PRESET Config.xml (shipped mod defaults)";
 

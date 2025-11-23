@@ -62,7 +62,7 @@ There is no formula used, all have been set manually taking into consideration v
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<!--ChangeLog Value="" /-->
 	<ChangeLog>
-- complete refactor
+- complete refactor of the original
 - updated to work for 1.4.* game patch
 </ChangeLog>
 	<!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->

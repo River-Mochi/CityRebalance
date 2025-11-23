@@ -3,12 +3,12 @@
 
 namespace RealCity
 {
-    using System;                    // Exception
+    using System;                     // Exception
     using System.Collections.Generic; // List<T>
-    using System.IO;                 // Path, File, Directory, FileStream
-    using System.Reflection;         // Assembly
-    using System.Xml.Serialization;  // XmlSerializer, Xml* attributes
-    using UnityEngine;               // Application.persistentDataPath
+    using System.IO;                  // Path, File, Directory, FileStream
+    using System.Reflection;          // Assembly
+    using System.Xml.Serialization;   // XmlSerializer, Xml* attributes
+    using UnityEngine;                // Application.persistentDataPath
 
     [XmlRoot("Configuration")]
     public class ConfigurationXml
@@ -196,7 +196,7 @@ namespace RealCity
 
         public override string ToString()
         {
-            string res = $"{Name}=";
+            var res = $"{Name}=";
             if (ValueInt.HasValue)
             {
                 res += $" {ValueInt} (int)";
@@ -235,27 +235,27 @@ namespace RealCity
         {
             // Equivalent to EnvPath.kUserDataPath but without needing Colossal.PSI:
             //   C:\Users\<user>\AppData\LocalLow\Colossal Order\Cities Skylines II
-            string root = Application.persistentDataPath;
-            string dir = Path.Combine(root, "ModsData", Mod.ModId);
+            var root = Application.persistentDataPath;
+            var dir = Path.Combine(root, "ModsData", Mod.ModId);
             Directory.CreateDirectory(dir);
             return dir;
         }
 
         internal static string GetConfigFilePath()
         {
-            string dir = GetConfigDirectory();
+            var dir = GetConfigDirectory();
             return Path.Combine(dir, _configFileName);
         }
 
         private static string GetConfigDumpFilePath()
         {
-            string dir = GetConfigDirectory();
+            var dir = GetConfigDirectory();
             return Path.Combine(dir, _dumpFileName);
         }
 
         private static string? GetAssetDirectorySafe(string assetPath)
         {
-            string basePath = assetPath;
+            var basePath = assetPath;
 
             if (string.IsNullOrEmpty(basePath))
             {
@@ -274,7 +274,7 @@ namespace RealCity
                 return null;
             }
 
-            string? assetDir = Path.GetDirectoryName(basePath);
+            var assetDir = Path.GetDirectoryName(basePath);
             return assetDir;
         }
 
@@ -287,12 +287,12 @@ namespace RealCity
                     return false;
                 }
 
-                using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                using (StreamReader reader = new StreamReader(fs))
+                using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var reader = new StreamReader(fs))
                 {
-                    for (int i = 0; i < 5 && !reader.EndOfStream; i++)
+                    for (var i = 0; i < 5 && !reader.EndOfStream; i++)
                     {
-                        string? line = reader.ReadLine();
+                        var line = reader.ReadLine();
                         if (line != null &&
                             line.IndexOf(StubMarker, StringComparison.OrdinalIgnoreCase) >= 0)
                         {
@@ -312,8 +312,8 @@ namespace RealCity
         private static void CreateStubConfig(string configPath)
         {
             Directory.CreateDirectory(Path.GetDirectoryName(configPath)!);
-            using (FileStream fs = new FileStream(configPath, FileMode.CreateNew))
-            using (StreamWriter writer = new StreamWriter(fs))
+            using (var fs = new FileStream(configPath, FileMode.CreateNew))
+            using (var writer = new StreamWriter(fs))
             {
                 writer.WriteLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
                 writer.WriteLine("<!-- CSR-STUB: Config.xml placeholder created because a default config could not be found.");
@@ -336,17 +336,17 @@ namespace RealCity
         /// </summary>
         private static void EnsureConfigFileExists(string assetPath)
         {
-            string configPath = GetConfigFilePath();
+            var configPath = GetConfigFilePath();
 
             try
             {
                 if (File.Exists(configPath))
                 {
                     // If this is a stub and we now have a real shipped config, replace it.
-                    string? assetDirForStub = GetAssetDirectorySafe(assetPath);
+                    var assetDirForStub = GetAssetDirectorySafe(assetPath);
                     if (!string.IsNullOrEmpty(assetDirForStub) && IsStubConfig(configPath))
                     {
-                        string shippedPath = Path.Combine(assetDirForStub, _configFileName);
+                        var shippedPath = Path.Combine(assetDirForStub, _configFileName);
                         if (File.Exists(shippedPath))
                         {
                             Directory.CreateDirectory(Path.GetDirectoryName(configPath)!);
@@ -359,10 +359,10 @@ namespace RealCity
                     return;
                 }
 
-                string? assetDir = GetAssetDirectorySafe(assetPath);
+                var assetDir = GetAssetDirectorySafe(assetPath);
                 if (!string.IsNullOrEmpty(assetDir))
                 {
-                    string shippedPath = Path.Combine(assetDir, _configFileName);
+                    var shippedPath = Path.Combine(assetDir, _configFileName);
                     if (File.Exists(shippedPath))
                     {
                         Directory.CreateDirectory(Path.GetDirectoryName(configPath)!);
@@ -391,7 +391,7 @@ namespace RealCity
         /// </summary>
         public static string GetConfigFilePathForUI()
         {
-            string assetPath = Mod.modAsset != null ? Mod.modAsset.path : string.Empty;
+            var assetPath = Mod.modAsset != null ? Mod.modAsset.path : string.Empty;
             EnsureConfigFileExists(assetPath);
             return GetConfigFilePath();
         }
@@ -404,14 +404,14 @@ namespace RealCity
         {
             try
             {
-                string? assetDir = GetAssetDirectorySafe(assetPath);
+                var assetDir = GetAssetDirectorySafe(assetPath);
                 if (string.IsNullOrEmpty(assetDir))
                 {
                     Mod.s_Log.Warn("LoadPresetConfig: Could not determine mod folder; falling back to local Config.xml.");
                     return LoadLocalConfig(assetPath);
                 }
 
-                string shippedPath = Path.Combine(assetDir, _configFileName);
+                var shippedPath = Path.Combine(assetDir, _configFileName);
                 if (!File.Exists(shippedPath))
                 {
                     Mod.s_Log.Warn(
@@ -419,8 +419,8 @@ namespace RealCity
                     return LoadLocalConfig(assetPath);
                 }
 
-                XmlSerializer serializer = new XmlSerializer(typeof(ConfigurationXml));
-                using (FileStream fs = new FileStream(shippedPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                var serializer = new XmlSerializer(typeof(ConfigurationXml));
+                using (var fs = new FileStream(shippedPath, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     _config = (ConfigurationXml)serializer.Deserialize(fs);
                 }
@@ -456,7 +456,7 @@ namespace RealCity
         /// </summary>
         public static ConfigurationXml? LoadLocalConfig(string assetPath)
         {
-            string configPath = GetConfigFilePath();
+            var configPath = GetConfigFilePath();
 
             try
             {
@@ -470,8 +470,8 @@ namespace RealCity
                     return null;
                 }
 
-                XmlSerializer serializer = new XmlSerializer(typeof(ConfigurationXml));
-                using (FileStream fs = new FileStream(configPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                var serializer = new XmlSerializer(typeof(ConfigurationXml));
+                using (var fs = new FileStream(configPath, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     _config = (ConfigurationXml)serializer.Deserialize(fs);
                 }
@@ -523,9 +523,9 @@ namespace RealCity
                     return;
                 }
 
-                string dumpFile = GetConfigDumpFilePath();
-                XmlSerializer serializer = new XmlSerializer(typeof(ConfigurationXml));
-                using (FileStream fs = new FileStream(dumpFile, FileMode.Create))
+                var dumpFile = GetConfigDumpFilePath();
+                var serializer = new XmlSerializer(typeof(ConfigurationXml));
+                using (var fs = new FileStream(dumpFile, FileMode.Create))
                 {
                     serializer.Serialize(fs, _config);
                 }
@@ -546,8 +546,8 @@ namespace RealCity
         {
             try
             {
-                string configPath = GetConfigFilePath();
-                string? assetDir = GetAssetDirectorySafe(assetPath);
+                var configPath = GetConfigFilePath();
+                var assetDir = GetAssetDirectorySafe(assetPath);
 
                 if (string.IsNullOrEmpty(assetDir))
                 {
@@ -557,7 +557,7 @@ namespace RealCity
                     return;
                 }
 
-                string shippedPath = Path.Combine(assetDir, _configFileName);
+                var shippedPath = Path.Combine(assetDir, _configFileName);
                 if (!File.Exists(shippedPath))
                 {
                     Mod.s_Log.Warn(

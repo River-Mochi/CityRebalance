@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration>
 
-<!-- Config.xml -->
+<!-- Config.xml - City Services Redux -->
+
+<!-- NOTE: Do NOT set worker counts to "0".
+     Use a small positive number if you want very low staffing. -->
 
 <!-- SHORT GUIDE
 
@@ -15,13 +18,22 @@
   a. You need to know the Field's name (e.g. m_Workplaces) and type (enum, int, float).
   b. ValueInt must be defined for int fields and enum fields.
   c. ValueFloat must be defined for float fields.
-5. Important.
+5. IMPORTANT
   a. Do NOT modify fields that hold other data types, arrays, references, etc. This may crash the game.
-  b. Use local Config.xml for your own params.
-  c. Enable Detailed logging to see a very comprehensive log of what the mod is doing.
-  d. There are few Examples in the file.
+  b. Use local Config.xml for your own parameters.
+  c. Enable Detailed logging if you want to see a very detailed log of what the mod is doing.
+  d. Otherwise, LEAVE DEBUG Verbos logging DISABLED, off - long logs affect performance.
+
+ 6. Examples in the file below, e.g., can change HighSchool01 from 30 to 50 employees and if you make a new high school in the city it will have more workers.
+  a. Options, "APPLY" needs to be clicked for file changes to be updated.
+  b. Only new buildings get the new employee numbers, you have to delete/remake old buildings for the change.
+  c. If you mess up and want an all new Config.xml, use the button.
+
+7. Config_Dump.xml is just a clean, serialized copy of whatever the mod successfully loaded
+  a. Don't worry about this file, it's auto generated from Config.xml.
 
 -->
+
 
 <!-- CITY SERVICES BUILDINGS -->
 <!-- Note on Workplace Complexity: only main building matters :( extensions just add new workers but their Complexity is ignored :( -->
