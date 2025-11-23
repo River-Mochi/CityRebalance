@@ -1,85 +1,296 @@
-﻿using System.Collections.Generic;
-using Colossal;
-using Colossal.IO.AssetDatabase;
-using Game.Modding;
-using Game.Settings;
-using RealCity.Config;
+// Setting.cs
+// Options UI + Config.xml helpers for City Services Redux.
 
-namespace RealCity;
-
-[FileLocation(nameof(RealCity))]
-[SettingsUIGroupOrder(kToggleGroup, kButtonGroup)]
-[SettingsUIShowGroupName(kToggleGroup, kButtonGroup)]
-public class Setting : ModSetting
+namespace RealCity
 {
-    public const string kSection = "Main";
+    using System;                         // Exception
+    using System.IO;                      // Path, Directory
+    using Colossal.IO.AssetDatabase;      // ModSetting, FileLocation
+    using Game.Modding;                   // IMod
+    using Game.Settings;                  // Settings attributes
+    using UnityEngine;                    // Application.persistentDataPath, OpenURL
 
-    public const string kToggleGroup = "Options";
-    public const string kButtonGroup = "Actions";
-
-    public Setting(IMod mod) : base(mod)
+    [FileLocation("ModsSettings/RealCity/RealCity")]
+    [SettingsUITabOrder(
+        kSection,
+        kDebugSection)]
+    [SettingsUIGroupOrder(
+        kToggleGroup,
+        kButtonGroup,
+        kConfigUsageGroup,
+        kInfoGroup,
+        kDebugGroup)]
+    [SettingsUIShowGroupName(
+        kToggleGroup,
+        kButtonGroup,
+        kConfigUsageGroup,
+        kInfoGroup,
+        kDebugGroup)]
+    public class Setting : ModSetting
     {
-        SetDefaults();
-    }
+        // Tabs (sections)
+        public const string kSection = "Actions";       // Shown as "Actions" via locale
+        public const string kDebugSection = "Debug"; // Shown as "Debug" via locale
 
-    /// <summary>
-    /// Gets or sets a value indicating whether: Used to force saving of Modsettings if settings would result in empty Json.
-    /// </summary>
-    [SettingsUIHidden]
-    public bool _Hidden { get; set; }
+        // Groups
+        public const string kToggleGroup = "Options";
+        public const string kButtonGroup = "Actions";
+        public const string kConfigUsageGroup = "ConfigUsage";
+        public const string kInfoGroup = "Info";
+        public const string kDebugGroup = "Debug";
 
-    //Logging = base.Config.Bind<bool>("Debug", "Logging", false, "Enables detailed logging.");
-    //ConfigDump = base.Config.Bind<bool>("Debug", "ConfigDump", false, "Saves configuration to a secondary xml file.");
-    [SettingsUISection(kSection, kToggleGroup)]
-    public bool Logging { get; set; }
+        // UIButton row grouping for custom config buttons
+        private const string kCustomButtonsRow = "CustomConfigButtonsRow";
 
-    [SettingsUISection(kSection, kToggleGroup)]
-    public bool UseLocalConfig { get; set; }
+        // Backing fields for mutually exclusive toggles
+        private bool m_UseModPresets;
+        private bool m_UseLocalConfig;
 
-    [SettingsUIButton]
-    [SettingsUIConfirmation]
-    [SettingsUISection(kSection, kButtonGroup)]
-    public bool ApplyConfiguration { set { Mod.log.Info("ApplyConfiguration clicked"); ConfigTool.ReadAndApply(); } }
-
-    public override void SetDefaults()
-    {
-        _Hidden = true;
-        Logging = false;
-        UseLocalConfig = false;
-    }
-}
-
-public class LocaleEN : IDictionarySource
-{
-    private readonly Setting m_Setting;
-    public LocaleEN(Setting setting)
-    {
-        m_Setting = setting;
-    }
-
-    public IEnumerable<KeyValuePair<string, string>> ReadEntries(IList<IDictionaryEntryError> errors, Dictionary<string, int> indexCounts)
-    {
-        return new Dictionary<string, string>
+        public Setting(IMod mod)
+            : base(mod)
         {
-            { m_Setting.GetSettingsLocaleID(), $"City Services Rebalance {Mod.modAsset.version}" },
-            { m_Setting.GetOptionTabLocaleID(Setting.kSection), "Main" },
+            SetDefaults();
+        }
 
-            { m_Setting.GetOptionGroupLocaleID(Setting.kToggleGroup), "Options" },
-            { m_Setting.GetOptionGroupLocaleID(Setting.kButtonGroup), "Actions" },
+        // Used to force saving of ModSettings even if all visible options are defaults
+        // (would otherwise be empty and not created).
+        [SettingsUIHidden]
+        public bool _Hidden
+        {
+            get; set;
+        }
 
-            { m_Setting.GetOptionLabelLocaleID(nameof(Setting.Logging)), "Detailed logging" },
-            { m_Setting.GetOptionDescLocaleID(nameof(Setting.Logging)), "Outputs more diagnostic information to the log file." },
+        // --------------------
+        // Actions tab: Options
+        // --------------------
 
-            { m_Setting.GetOptionLabelLocaleID(nameof(Setting.UseLocalConfig)), "Use local configuration" },
-            { m_Setting.GetOptionDescLocaleID(nameof(Setting.UseLocalConfig)), "Local configuration will be used instead of the default one that is shipped with the mod." },
+        /// <summary>
+        /// Use the Config.xml that ships with the mod (mod presets).
+        /// Mutually exclusive with UseLocalConfig toggle.
+        /// </summary>
+        [SettingsUISection(kSection, kToggleGroup)]
+        public bool UseModPresets
+        {
+            get => m_UseModPresets;
+            set
+            {
+                // Do not allow both toggles to be false.
+                if (!value && !m_UseLocalConfig)
+                {
+                    return;
+                }
 
-            { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ApplyConfiguration)), "Apply Configuration" },
-            { m_Setting.GetOptionDescLocaleID(nameof(Setting.ApplyConfiguration)), "This will apply a new configuration from Confix.xml file." },
-            { m_Setting.GetOptionWarningLocaleID(nameof(Setting.ApplyConfiguration)), "This will apply a new configuration. Please confirm." },
-        };
-    }
+                m_UseModPresets = value;
 
-    public void Unload()
-    {
+                if (m_UseModPresets)
+                {
+                    // Presets on => local custom off.
+                    m_UseLocalConfig = false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Use ModsData/RealCity/Config.xml as a local custom file.
+        /// Mutually exclusive with UseModPresets toggle.
+        /// </summary>
+        [SettingsUISection(kSection, kToggleGroup)]
+        public bool UseLocalConfig
+        {
+            get => m_UseLocalConfig;
+            set
+            {
+                // Do not allow both toggles to be false.
+                if (!value && !m_UseModPresets)
+                {
+                    return;
+                }
+
+                m_UseLocalConfig = value;
+
+                if (m_UseLocalConfig)
+                {
+                    // Local custom on => presets off.
+                    m_UseModPresets = false;
+                }
+            }
+        }
+
+        // -----------------------------
+        // Actions tab: custom config buttons
+        // Only visible when UseLocalConfig is enabled.
+        // -----------------------------
+
+        // Open Folder: ModsData/RealCity that contains Config.xml
+        [SettingsUIButtonGroup(kCustomButtonsRow)]
+        [SettingsUIButton]
+        [SettingsUISection(kSection, kButtonGroup)]
+        [SettingsUIHideByCondition(typeof(Setting), nameof(UseLocalConfig), true)]
+        public bool OpenConfigFile
+        {
+            set
+            {
+                if (!value)
+                {
+                    return;
+                }
+
+                try
+                {
+                    // Ensure the Config.xml exists (copy from shipped or create minimal shell)
+                    // and then open the containing folder.
+                    string configPath = ConfigToolXml.GetConfigFilePathForUI();
+                    string? modsDataDir = Path.GetDirectoryName(configPath);
+
+                    if (!string.IsNullOrEmpty(modsDataDir))
+                    {
+                        if (!Directory.Exists(modsDataDir))
+                        {
+                            Directory.CreateDirectory(modsDataDir);
+                        }
+
+                        // Just open the folder; player chooses their editor.
+                        OpenWithUnityFileUrl(modsDataDir, isDirectory: true);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Never throw from options UI.
+                    Mod.Log($"OpenConfigFile (folder) failed: {ex.GetType().Name}: {ex.Message}");
+                }
+            }
+        }
+
+        // Apply-Update Config.xml (local custom file)
+        [SettingsUIButtonGroup(kCustomButtonsRow)]
+        [SettingsUIButton]
+        [SettingsUISection(kSection, kButtonGroup)]
+        [SettingsUIHideByCondition(typeof(Setting), nameof(UseLocalConfig), true)]
+        [SettingsUIConfirmation]
+        public bool ApplyConfiguration
+        {
+            set
+            {
+                if (!value)
+                {
+                    return;
+                }
+
+                Mod.Log("ApplyConfiguration clicked (local custom file).");
+                ConfigTool.ReadAndApply();
+            }
+        }
+
+        // Refresh file button: "I messed up my custom config file, give me a fresh copy" (Actions tab)
+        [SettingsUIButton]
+        [SettingsUISection(kSection, kButtonGroup)]
+        [SettingsUIHideByCondition(typeof(Setting), nameof(UseLocalConfig), true)]
+        [SettingsUIConfirmation]
+        public bool ResetLocalConfig
+        {
+            set
+            {
+                if (!value)
+                {
+                    return;
+                }
+
+                ResetLocalConfigInternal();
+            }
+        }
+
+        // “How to use Config.xml” body text under the header (multiline).
+        // Always visible regardless of toggles.
+        [SettingsUIMultilineText]
+        [SettingsUISection(kSection, kConfigUsageGroup)]
+        public string ConfigUsageSteps => string.Empty;
+
+        // ---------------
+        // Debug tab: Info
+        // ---------------
+
+        [SettingsUISection(kDebugSection, kInfoGroup)]
+        public string NameDisplay => Mod.ModName;
+
+        [SettingsUISection(kDebugSection, kInfoGroup)]
+        public string VersionDisplay => Mod.ModVersion;
+
+        // ---------------
+        // Debug tab: DEBUG
+        // ---------------
+
+        [SettingsUISection(kDebugSection, kDebugGroup)]
+        public bool Logging
+        {
+            get; set;
+        }
+
+        // Duplicate reset button on Debug tab (always visible)
+        [SettingsUIButton]
+        [SettingsUISection(kDebugSection, kDebugGroup)]
+        [SettingsUIConfirmation]
+        public bool ResetLocalConfigDebug
+        {
+            set
+            {
+                if (!value)
+                {
+                    return;
+                }
+
+                ResetLocalConfigInternal();
+            }
+        }
+
+        public override void SetDefaults()
+        {
+            _Hidden = true;
+            Logging = false;          // default OFF
+
+            // Default behaviour: use shipped presets, no local custom file.
+            m_UseModPresets = true;
+            m_UseLocalConfig = false;
+        }
+
+        // -------------------------------
+        // HELPERS
+        // -------------------------------
+
+        // Shared reset implementation used by both reset buttons.
+        private static void ResetLocalConfigInternal()
+        {
+            try
+            {
+                string assetPath = Mod.modAsset != null ? Mod.modAsset.path : string.Empty;
+                ConfigToolXml.RestoreDefaultConfigForUI(assetPath);
+            }
+            catch (Exception ex)
+            {
+                Mod.Log($"ResetLocalConfig failed: {ex.GetType().Name}: {ex.Message}");
+            }
+        }
+
+        // Helper: open a file or folder via Unity, using a file:/// URI.
+        private static void OpenWithUnityFileUrl(string path, bool isDirectory = false)
+        {
+            try
+            {
+                // Normalize to forward slashes for URI.
+                string normalized = path.Replace('\\', '/');
+
+                // Some platforms like a trailing slash for directories.
+                if (isDirectory && !normalized.EndsWith("/", StringComparison.Ordinal))
+                {
+                    normalized += "/";
+                }
+
+                string uri = "file:///" + normalized;
+                Application.OpenURL(uri);
+            }
+            catch
+            {
+                // Swallow; callers already log if needed.
+            }
+        }
     }
 }

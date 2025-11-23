@@ -1,19 +1,18 @@
 
-# City Services Rebalance Mod
+# City Services Redux Mod
 The mod allows for virtually any changes to City Services buildings. At the moment, it mainly **increases number of workers in City Services buildings** and does other small adjustments (see below for details). It does so by changing Prefab parameters during the game start-up, so no changes to game systems are required. In the long term this can serve as a foundation for **tuning and balancing any parameter**. I encourage to contribute to the mod by raising issues and/or PRs on GitHub with proposed changes and rationale behind such changes.
 
-Number of configured buildings and extensions: **197**.
+Number of configured buildings and extensions: **186**.
 
 
 ## Features
 
-### Version 0.1
+### Version 0.5
 - All buildings have more workplaces and some have a bit different requirements as for what education levels are required. There is no formula used, all have been set manually taking into consideration various aspects. Some have only slightly more workers, but some have many more. You need to take a look into Config.xml to find out about specific buildings.
 - Crematorium has 2x higher processing rate to handle increased deaths from Population Rebalance.
-- Post Sorting Facility have 2x higher sorting speed.
 
 ### Building configuration
-- The configuration is kept in the `Config.xml` file that comes together with the mod. Please do not confuse with BepInEx `RealCity.cfg` config file.
+- The configuration is kept in the `Config.xml` file that comes together with the mod.
 - The file is loaded when the game is started, so for new params to take effect you need to restart the game.
 - Note for the future. Please note that new mod versions will overwrite the Config.xml file so if you did any customizations and want to keep them - make a backup before update and then reapply to the updated version.
 
@@ -30,7 +29,6 @@ Number of configured buildings and extensions: **197**.
 ## Technical
 
 ### Requirements and Compatibility
-- Cities Skylines II version 1.1.0f1 or later; check GitHub or Discord if the mod is compatible with the latest game version.
 - The mod does NOT modify savefiles.
 - The mod does NOT modify game systems.
 - The mod uses Cities: Skylines 2 Mod Template by Captain-Of-Coit.
@@ -41,5 +39,8 @@ Number of configured buildings and extensions: **197**.
 ### [Changelog](./CHANGELOG.md)
 
 ### Support
-- Please report bugs and issues on [GitHub](https://github.com/Infixo/CS2-RealCity).
-- You may also leave comments on [Discord](https://discord.com/channels/1169011184557637825/1215734718654451892).
+- Mod can be installed from [Paradox Mods](https://mods.paradoxplaza.com/uploaded?orderBy=desc&sortBy=best&time=alltime)
+- Please report bugs and issues on [GitHub](https://github.com/River-Mochi/CityServicesRedux).
+- You may also leave comments on [Paradox Forum](https://forum.paradoxplaza.com/forum/threads/city-services-rebalance-redux.1878625/)
+- or [Discord](https://discord.gg/HTav7ARPs2)
+

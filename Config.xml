@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration>
 
+<!-- Config.xml -->
+
 <!-- SHORT GUIDE
 
 1. Configuration is stored in the hierarchical form: Prefab -> Component -> Field.
@@ -767,51 +769,66 @@
       <Field name="m_Workplaces" valueInt="10" valueFloat="0" /> <!-- 6 -->
     </Component>
   </Prefab>
-  <!-- Post Office -->
+
+  <!-- Post Office (workplaces only)
+		Suggested: use Magic Mail mod for other features, it's better for tuning mail vans, capacities. -->
   <Prefab type="BuildingPrefab" name="PostOffice01">
     <Component name="Workplace">
       <Field name="m_Workplaces" valueInt="25" valueFloat="0" /> <!-- 12 -->
       <Field name="m_Complexity" valueInt="1" valueFloat="0" /> <!-- Simple => ok -->
     </Component>
   </Prefab>
+
   <Prefab type="BuildingPrefab" name="PostOffice01 Mail Storage Extension">
     <Component name="Workplace">
       <Field name="m_Workplaces" valueInt="5" valueFloat="0" /> <!-- 2 -->
     </Component>
   </Prefab>
+
   <Prefab type="BuildingPrefab" name="PostOffice01 Post Van Garage">
     <Component name="Workplace">
       <Field name="m_Workplaces" valueInt="10" valueFloat="0" /> <!-- 2 -->
     </Component>
   </Prefab>
-  <!-- Post Sorting Facility -->
+
+<!-- Postal buildings: worker counts only; mail mechanics are better tuned by Magic Mail mod. -->
+  <!-- Post Sorting Facility (workplaces only)
+       Suggested: use Magic Mail mod which handles mail processing / vans more safely. -->
+
   <Prefab type="BuildingPrefab" name="PostSortingFacility01">
     <Component name="Workplace">
       <Field name="m_Workplaces" valueInt="60" /> <!-- 20 -->
       <Field name="m_Complexity" valueInt="1" /> <!-- Simple => ok -->
     </Component>
-    <Component name="PostFacility">
-      <Field name="m_SortingRate" valueInt="75000" /> <!-- 50k -->
-    </Component>
   </Prefab>
+
   <Prefab type="BuildingExtensionPrefab" name="PostSortingFacility01 Automated Sorting">
     <Component name="Workplace">
       <Field name="m_Workplaces" valueInt="12" /> <!-- 4 -->
     </Component>
-    <Component name="PostFacility">
-      <Field name="m_SortingRate" valueInt="75000" /> <!-- 25k -->
-    </Component>
+    <!-- NOTE: PostFacility SortingRate omitted on purpose. use Magic Mail mod -->
   </Prefab>
+
   <Prefab type="BuildingExtensionPrefab" name="PostSortingFacility01 Extra Loading Ramps">
     <Component name="Workplace">
       <Field name="m_Workplaces" valueInt="12" /> <!-- 4 -->
     </Component>
   </Prefab>
+
   <Prefab type="BuildingPrefab" name="PostSortingFacility01 Mail Storage Extension">
     <Component name="Workplace">
       <Field name="m_Workplaces" valueInt="4" /> <!-- 0 -->
     </Component>
   </Prefab>
+
+
+
+
+
+
+
+
+
   <!-- Prison -->
   <Prefab type="BuildingPrefab" name="Prison01">
     <Component name="Workplace">

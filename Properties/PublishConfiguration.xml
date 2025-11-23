@@ -1,51 +1,72 @@
 ﻿<Publish>
 	<!--Id must be set in order to update existed mod. it is not required for publishing mod for the first time-->
-	<ModId Value="76583" />
+	<ModId Value="" />
 	<!--Name of the mod to display to players-->
-	<DisplayName Value="City Services Rebalance" />
+	<DisplayName Value="City Services Redux" />
 	<!--Short description of the mod-->
 	<ShortDescription Value="Increases number of workers in City Services plus other small adjustments." />
 	<!--Long description of the mod. Single line or multi line. Supports minimal markdown subset-->
 	<!--LongDescription Value="Increases number of workers in City Services and other small adjustments." /-->
-	<LongDescription>
-Tweaks and modifies City Services to your liking. The mod allows to change almost any parameter of the buildings and services. By default, it increases **number of workers** in City Services and does few other small adjustments (see below for details). The mod supports local configuration, so you can tweak the parameters as you wish. New params are only applied to **new buildings**. If you want to change an existing building, it needs to be destroyed and plopped again.
+	<LongDescription>**City Services Redux**
 
-Number of configured buildings and extensions: **197**.
+Tweaks and modifies City Service buildings to your liking. By default, you could just install this mod and enjoy it as-is.
 
-## Features
+- This has a curated preset list that increases the **number of workers** in a City Service (e.g., Central Intelligence) and a few other small adjustments (see below for details). 
+- Number of configured buildings and extensions: **186**.
+- Increased workers automatically increases the wages you pay per building (scaled by the game itself).
 
-* All buildings have more workplaces and some have a bit different requirements as for what education levels are required. There is no formula used, all have been set manually taking into consideration various aspects. Some have only slightly more workers, but some have many more. You need to take a look into Config.xml or RealCity.log to find out about specific buildings.
-* Crematorium has 2x higher processing rate to handle increased deaths from Population Rebalance.
-* Post Sorting Facility have 2x higher sorting speed.
-* The mod can use a local (from Mods/RealCity) version of Config.xml that can be modified by a player.
-* New configuration can be applied even during the game.
-* To add new components and parameters please refer to info and examples in Config.xml.
+### Power Users
+- Also supports local configuration, so you can easily tweak the config file as you wish.
+- New parameters are only applied to **new buildings**. 
+- If you want to change an existing building, it needs to be destroyed and plopped again to see increased employees.
 
-## Technical
+
+### Features
+
+* Curated Presets: all buildings have more workplaces and some have altered requirements for what education levels are required at that building.
+There is no formula used, all have been set manually taking into consideration various aspects. Some have only slightly more workers (2), but some have many more.
+* Example: Central Intelligense defaults to 100 is increased to 300 which to add more realism to such a large building.
+* Look into Config.xml or RealCity.log to find out about specific buildings, but you can increase or decrease what is in the preset file that comes with the mod.
+* Crematorium has 2x higher processing rate to handle increased deaths from Population Rebalance (this won't matter if you use Magic Hearse).
+* If you don't like the preset numbers, then use the player-modifiable local Config.xml (from ModsData/RealCity/Config.xml).
+* New configuration can be applied/updated even during the game (use options menu).
+* To add new components and parameters please refer to info and examples in Config.xml file which can be edited with Notepad++ or similar.
+
+### Technical
 
 * The configuration is applied during the mod initialization and after clicking **Apply Configuration** button. It is possible to apply a new configuration during the game.
 * The mod does **not** modify savefiles.
 * The mod does **not** modify any game systems.
 * The mod can be turned off at any time. Already plopped buildings will retain modded params. New buildings will have ofc vanilla params.
+
+### CREDITS
+- River-Mochi current author/maintainer
+- Thanks to Infixo for the original City Services mod
+- Fans of the mod like Dorin who kept hope alive for a Redux
+
 	</LongDescription>
 	<!--Thumbnail-->
-	<Thumbnail Value="Properties/Thumbnail.png" />
+	<Thumbnail Value="Properties/Thumbnail15.png" />
 	<!--Screenshot, can be set multiple times-->
 	<Screenshot Value="" />
 	<!--Tag, can be set multiple times-->
 	<Tag Value="Code Mod" />
 	<!--Link to the forum post where the mod can be discussed-->
-	<ForumLink Value="https://forum.paradoxplaza.com/forum/threads/city-services-rebalance.1647907/" />
+	<ForumLink Value="https://forum.paradoxplaza.com/forum/threads/city-services-rebalance-redux.1878625/" />
 	<!--Version of the mod-->
-	<ModVersion Value="0.4.1" />
+	<ModVersion Value="0.5.0" />
 	<!--Recommended version of the base game to use the mod-->
-	<GameVersion Value="1.1.*" />
+	<GameVersion Value="1.4.*" />
 	<!--Dependency for the mod, can be set multiple times-->
 	<Dependency Id="" />
 	<!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
 	<!--ChangeLog Value="" /-->
-	<ChangeLog>Support for fields of type: byte, short, uint.</ChangeLog>
+	<ChangeLog>
+- complete refactor
+- updated to work for 1.4.* game patch
+</ChangeLog>
 	<!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
-	<ExternalLink Type="github" Url="https://github.com/Infixo/CS2-RealCity" />
-	<ExternalLink Type="discord" Url="https://discord.com/channels/1169011184557637825/1215734718654451892" />
+	<ExternalLink Type="discord" Url="https://discord.gg/HTav7ARPs2" />
+	<ExternalLink Type="github" Url="https://github.com/River-Mochi/CityServicesRedux" />
+
 </Publish>

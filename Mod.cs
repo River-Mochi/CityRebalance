@@ -1,88 +1,257 @@
-﻿using Colossal.IO.AssetDatabase;
-using Colossal.Logging;
-using Game;
-using Game.Modding;
-using Game.Prefabs;
-using Game.SceneFlow;
-using System.Reflection;
-using System;
-using RealCity.Config;
+// Mod.cs
+// Entry point for City Services Rebalance [CSR].
 
-namespace RealCity;
-
-public class Mod : IMod
+namespace RealCity
 {
-    // mod's instance and asset
-    public static Mod instance { get; private set; }
-    public static ExecutableAsset modAsset { get; private set; }
+    using System;
+    using System.Reflection;
+    using Colossal;                      // IDictionarySource
+    using Colossal.IO.AssetDatabase;     // AssetDatabase.LoadSettings
+    using Colossal.Localization;         // LocalizationManager
+    using Colossal.Logging;              // ILog, LogManager
+    using Game;                          // UpdateSystem
+    using Game.Modding;                  // IMod
+    using Game.SceneFlow;                // GameManager, ExecutableAsset
 
-    // logging
-    public static ILog log = LogManager.GetLogger($"{nameof(RealCity)}").SetShowsErrorsInUI(false);
-
-    public static void Log(string text) => log.Info(text);
-
-    public static void LogIf(string text)
+    public sealed class Mod : IMod
     {
-        if (setting.Logging) log.Info(text);
-    }
+        // ---- PUBLIC CONSTANTS / METADATA ----
 
-    public static Setting setting { get; private set; }
+        public const string ModId = "RealCity";
+        public const string ModName = "City Services Redux";
+        public const string ModTag = "[CSR]";
 
-    public void OnLoad(UpdateSystem updateSystem)
-    {
-        instance = this;
+        /// <summary>
+        /// Read Version number from assembly (3-part).
+        /// </summary>
+        public static readonly string ModVersion =
+            Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "1.0.0";
 
-        log.Info(nameof(OnLoad));
+        /// <summary>
+        /// Single shared logger for this mod
+        /// </summary>
+        public static readonly ILog s_Log =
+            LogManager.GetLogger(ModId).SetShowsErrorsInUI(false);
 
-        if (GameManager.instance.modManager.TryGetExecutableAsset(this, out var asset))
+        /// <summary>
+        /// Mod instance
+        /// </summary>
+        public static Mod instance
         {
-            log.Info($"{asset.name} v{asset.version} mod asset at {asset.path}");
-            modAsset = asset;
-            //DumpObjectData(asset);
+            get;
+            private set;
+        } = null!;
+
+        /// <summary>
+        /// Executable asset for this mod (needed for Config.xml seeding path).
+        /// </summary>
+        public static ExecutableAsset modAsset
+        {
+            get;
+            private set;
+        } = null!;
+
+        /// <summary>
+        /// Global settings instance
+        /// </summary>
+        public static Setting setting
+        {
+            get;
+            private set;
+        } = null!;
+
+        // ---- PRIVATE STATE ----
+
+        private static bool s_BannerLogged;
+
+        // --------------------------------------------------------------------
+        // IMod
+        // --------------------------------------------------------------------
+
+        public void OnLoad(UpdateSystem updateSystem)
+        {
+            instance = this;
+
+            // One-time log banner
+            if (!s_BannerLogged)
+            {
+                s_BannerLogged = true;
+                s_Log.Info($"{ModName} {ModTag} v{ModVersion} OnLoad");
+            }
+
+            GameManager? gameManager = GameManager.instance;
+            if (gameManager == null)
+            {
+                s_Log.Error("GameManager.instance is null in Mod.OnLoad.");
+                return;
+            }
+
+            // Resolve ExecutableAsset (needed so ConfigTool knows the mod path).
+            if (gameManager.modManager.TryGetExecutableAsset(this, out ExecutableAsset asset))
+            {
+#if DEBUG
+                s_Log.Info($"{asset.name} v{asset.version} mod asset at {asset.path}"); // Full path to DLL
+#endif
+                modAsset = asset;
+            }
+            else
+            {
+                s_Log.Warn("Failed to resolve mod ExecutableAsset; Config.xml seeding may be skipped.");
+            }
+
+            // Settings must exist before locales so labels resolve correctly.
+            Setting s = new Setting(this);
+            setting = s;
+
+            // Register locales.
+            AddLocaleSource("en-US", new LocaleEN(s));
+
+            // Ready for future locales
+            // AddLocaleSource("de-DE",    new LocaleDE(s));
+            // AddLocaleSource("fr-FR",    new LocaleFR(s));
+            AddLocaleSource("es-ES", new LocaleES(s));
+            // AddLocaleSource("it-IT",    new LocaleIT(s));
+            // AddLocaleSource("ja-JP",    new LocaleJA(s));
+            // AddLocaleSource("ko-KR",    new LocaleKO(s));
+            // AddLocaleSource("pt-BR",    new LocalePT_BR(s));
+            AddLocaleSource("zh-HANS", new LocaleZH_CN(s));
+            // AddLocaleSource("zh-HANT",  new LocaleZH_HANT(s));
+
+            // Load persisted settings or create defaults on first run.
+            AssetDatabase.global.LoadSettings(ModId, s, new Setting(this));
+
+            // Register in Options UI.
+            s.RegisterInOptionsUI();
+
+            // Ensure the settings asset is actually written.
+            s._Hidden = false;
+
+            // Read and apply prefab configuration.
+            // This will also ensure ModsData/RealCity/Config.xml exists.
+            ConfigTool.ReadAndApply();
         }
 
-        setting = new Setting(this);
-        setting.RegisterInOptionsUI();
-        GameManager.instance.localizationManager.AddSource("en-US", new LocaleEN(setting));
-        setting._Hidden = false;
-
-        AssetDatabase.global.LoadSettings(nameof(RealCity), setting, new Setting(this));
-
-        // READ AND APPLY CONFIG
-        ConfigTool.ReadAndApply();
-    }
-
-    public void OnDispose()
-    {
-        log.Info(nameof(OnDispose));
-        if (setting != null)
+        public void OnDispose()
         {
-            setting.UnregisterInOptionsUI();
-            setting = null;
-        }
-    }
+            s_Log.Info(nameof(OnDispose));
 
-    public static void DumpObjectData(object objectToDump)
-    {
-        //string className = objectToDump.GetType().Name;
-        //Mod.log.Info($"{prefab.name}.{objectToDump.name}.CLASS: {className}");
-        Mod.log.Info($"Object: {objectToDump}");
-
-        // Fields
-        Type type = objectToDump.GetType();
-        FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-        foreach (FieldInfo field in fields)
-        {
-            //if (field.Name != "isDirty" && field.Name != "active" && field.Name != "components")
-            Mod.log.Info($" {field.Name}: {field.GetValue(objectToDump)}");
+            if (setting != null)
+            {
+                setting.UnregisterInOptionsUI();
+                setting = null!;
+            }
         }
 
-        // Properties
-        PropertyInfo[] properties = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-        foreach (PropertyInfo property in properties)
+        // --------------------------------------------------------------------
+        // Debug helper
+        // --------------------------------------------------------------------
+
+        public static void DumpObjectData(object objectToDump)
         {
-            Mod.log.Info($" {property.Name}: {property.GetValue(objectToDump)}");
+            if (objectToDump == null)
+            {
+                SafeLogInfo("Object: <null>");
+                return;
+            }
+
+            SafeLogInfo("Object: " + objectToDump);
+
+            Type type = objectToDump.GetType();
+
+            FieldInfo[] fields = type.GetFields(
+                BindingFlags.Public
+                | BindingFlags.NonPublic
+                | BindingFlags.Instance);
+
+            foreach (FieldInfo field in fields)
+            {
+                SafeLogInfo(" " + field.Name + ": " + field.GetValue(objectToDump));
+            }
+
+            PropertyInfo[] properties = type.GetProperties(
+                BindingFlags.Public
+                | BindingFlags.NonPublic
+                | BindingFlags.Instance);
+
+            foreach (PropertyInfo property in properties)
+            {
+                SafeLogInfo(" " + property.Name + ": " + property.GetValue(objectToDump));
+            }
+        }
+
+        // --------------------------------------------------------------------
+        // Logging helpers – protect against logging-related exceptions.
+        // --------------------------------------------------------------------
+
+        /// <summary>
+        /// Always log (Info). For important messages.
+        /// </summary>
+        public static void Log(string message)
+        {
+            SafeLogInfo(message);
+        }
+
+        /// <summary>
+        /// Verbose logging: only logs when the in-game checkbox is enabled.
+        /// </summary>
+        public static void LogIf(string message)
+        {
+            if (setting == null || !setting.Logging)
+            {
+                return;
+            }
+
+            SafeLogInfo(message);
+        }
+
+        private static void SafeLogInfo(string message)
+        {
+            if (string.IsNullOrEmpty(message))
+            {
+                return;
+            }
+
+            try
+            {
+                s_Log.Info(message);
+            }
+            catch (Exception)
+            {
+                // Swallow logging failures so they never surface to the player.
+            }
+        }
+
+        // --------------------------------------------------------------------
+        // Localization helper
+        // --------------------------------------------------------------------
+
+        /// <summary>
+        /// Wrapper around LocalizationManager.AddSource that catches exceptions
+        /// so localization issues can't crash the mod.
+        /// </summary>
+        private static void AddLocaleSource(string localeId, IDictionarySource source)
+        {
+            if (string.IsNullOrEmpty(localeId))
+            {
+                return;
+            }
+
+            LocalizationManager? lm = GameManager.instance?.localizationManager;
+            if (lm == null)
+            {
+                s_Log.Warn($"AddLocaleSource: No LocalizationManager; cannot add source for '{localeId}'.");
+                return;
+            }
+
+            try
+            {
+                lm.AddSource(localeId, source);
+            }
+            catch (Exception ex)
+            {
+                s_Log.Warn(
+                    $"AddLocaleSource: AddSource for '{localeId}' failed: {ex.GetType().Name}: {ex.Message}");
+            }
         }
     }
-
 }
