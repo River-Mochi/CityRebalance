@@ -57,7 +57,7 @@ It does not add any per-frame systems, so it has essentially no impact on perfor
 
 	</LongDescription>
 	<!--Thumbnail-->
-	<Thumbnail Value="Properties/Thumbnail10.png" />
+	<Thumbnail Value="Properties/Thumbnail10.jpg" />
 	<!--Screenshot, can be set multiple times-->
 	<Screenshot Value="Properties/10Actions.jpg" />
 	<Screenshot Value="Properties/20CentralINT-Before.jpg" />
