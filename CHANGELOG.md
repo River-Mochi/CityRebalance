@@ -1,5 +1,14 @@
 ## Changelog
 
+- v0.5.0 (2025-11-23)
+  - Complete refactor and rebrand as **City Services Redux**.
+  - Updated config and code for game patch **1.4.\***.
+  - New Options UI: presets vs custom Config.xml, reset buttons, and verbose logging toggle.
+  - Safer Config.xml handling with stub detection and automatic recovery.
+  - Added debug helpers (prefab status dump, config dump)
+  - multi-language support (EN, DE, FR, ES, PT-BR, ZH-CN).
+
+
 - v0.4.1 (2024-04-15)
   - Support for fields of type: byte, short, uint.
 

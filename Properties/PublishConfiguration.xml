@@ -57,9 +57,16 @@ It does not add any per-frame systems, so it has essentially no impact on perfor
 
 	</LongDescription>
 	<!--Thumbnail-->
-	<Thumbnail Value="Properties/Thumbnail15.png" />
+	<Thumbnail Value="Properties/Thumbnail10.png" />
 	<!--Screenshot, can be set multiple times-->
-	<Screenshot Value="" />
+	<Screenshot Value="Properties/10Actions.jpg" />
+	<Screenshot Value="Properties/20Actions-custom.jpg" />
+	<Screenshot Value="Properties/30Actions-HowtoUse.jpg" />
+	<Screenshot Value="Properties/40Actions-FR.jpg" />
+	<Screenshot Value="Properties/50Actions-ZH-CN.jpg" />
+	<Screenshot Value="Properties/70CentralINT-Before.jpg" />
+	<Screenshot Value="Properties/80CentralINT-After.jpg" />
+
 	<!--Tag, can be set multiple times-->
 	<Tag Value="Code Mod" />
 	<!--Link to the forum post where the mod can be discussed-->
