@@ -26,7 +26,7 @@ Number of preset configured buildings and extensions: **186**.
 ### Curated Presets
 * All buildings have more workplaces, some have altered required education levels and other allowed tweaks.
 * Presets were designed with various considerations. Some have only slightly more workers (2), and some have many.
-* Examples: Central Intelligense vanilla is 200 workers, preset is 300 as this is a large building.
+* Examples: Central Intelligence vanilla is 200 workers, preset is 300 as this is a large building.
 * Crematorium has 2x higher processing rate to handle increased deaths from Population Rebalance (this won't matter if you use Magic Hearse).
 * Existing buildings need to be destroyed and plopped again to see changes for new values.
 * If you want more than preset numbers, then see Power users.
