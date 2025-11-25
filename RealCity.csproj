@@ -79,6 +79,9 @@
 
   <!-- Ship default Config.xml alongside the mod -->
   <ItemGroup>
+    <None Update="origConfig.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Config.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

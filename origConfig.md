@@ -42,6 +42,8 @@
 	<Field name="m_Workplaces" valueInt="30" /> <!-- 10, 1000 places -->
 	<Field name="m_Complexity" valueInt="1" /> <!-- Simple => ok -->
   </Component>
+  <!-- For how many Students, use "Adjust School Capacity" mod is better. 
+use this mod for number of workers in the school which the game will scale wages for automatically. -->
 
 </Prefab>
 <Prefab type="BuildingExtensionPrefab" name="ElementarySchool01 Extension Wing">
@@ -1007,16 +1009,17 @@
       <Field name="m_Workplaces" valueInt="8" valueFloat="0" /> <!-- 6 -->
     </Component>
   </Prefab>
+
+
   <!-- Taxi Depot -->
   <Prefab type="BuildingPrefab" name="TaxiDepot01">
     <Component name="Workplace">
       <Field name="m_Workplaces" valueInt="30" valueFloat="0" /> <!-- 8, 20 taxis -->
       <Field name="m_Complexity" valueInt="1" valueFloat="0" /> <!-- Simple => ok -->
     </Component>
-	<!-- EXAMPLE - changes number of taxis in the depot
-    <Component name="TransportDepot">
-      <Field name="m_VehicleCapacity" valueInt="20" />
-    </Component>
+  <!-- Use "Adjust Transit Capacity" Mod if you want to increase number of Taxis the Depot building can handle,
+it manages this better. Use this mod for number of workers at the building. -->
+
 	-->
   </Prefab>
   <Prefab type="BuildingExtensionPrefab" name="TaxiDepot01 Dispatch Center">
@@ -1230,12 +1233,8 @@
   </Prefab>
   -->
   
-<!-- EXAMPLE - changes capacity of garbage trucks
-<Prefab type="CarPrefab" name="GarbageTruck01">
-  <Component name="GarbageTruck">
-	<Field name="m_GarbageCapacity" valueInt="20000" />
-  </Component>
-</Prefab>
+  <!-- Better to use "Magic Garbage Trucks" Mod to change how much Garbage trucks can carry because it also scales the unloading speed -->
+
 -->
 
 </Configuration>
