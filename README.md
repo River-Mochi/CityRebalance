@@ -47,4 +47,3 @@ Number of configured buildings and extensions: **186**.
 - Please report bugs and issues on [GitHub](https://github.com/River-Mochi/CityServicesRedux).
 - There is also [Paradox Forum](https://forum.paradoxplaza.com/forum/threads/city-services-rebalance-redux.1878625/)
 - or [Discord](https://discord.gg/HTav7ARPs2)
-
